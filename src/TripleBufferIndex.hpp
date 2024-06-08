@@ -13,7 +13,7 @@
 
 #include <cstdint>
 
-// Single-producer-single-consumer triple buffer that allows to decouple production and consuption speed
+// Single-producer-single-consumer triple buffer that allows to decouple production and consumption speed
 // Inspired by: https://github.com/brilliantsugar/trio
 class TripleBufferIndex
 {
