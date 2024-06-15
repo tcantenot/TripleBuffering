@@ -38,7 +38,7 @@ class TripleBufferIndex
 			uint64_t bDirty : 1;
 			uint64_t version;
 
-			Index(uint64_t i = 0): index(i), bDirty(0), version(-1) { }
+			Index(uint64_t i = 0): index(i), bDirty(0), version(~0ull) { }
 
 			#if K_TRIPLE_BUFFER_INDEX_USE_RELACY
 			friend std::ostream & operator<<(std::ostream & os, Index idx)
@@ -89,7 +89,7 @@ class TripleBufferIndex
 		void commitWriteAndSwap()
 		{
 			m_backBuffer.bDirty = 1;
-			m_backBuffer.version = version++;
+			m_backBuffer.version = m_version++;
 			m_backBuffer = K_TRIPLE_BUFFER_INDEX_VAR(m_middleBuffer).exchange(m_backBuffer, kMemoryOrderAcqRel);
 			m_backBuffer.bDirty = 0;
 		}
@@ -98,10 +98,12 @@ class TripleBufferIndex
 
 		static constexpr size_t kCacheLineSizeInBytes = 64; // Byte alignment to avoid false sharing
 		
-		AtomicType<Index> m_middleBuffer{1};
-		uint64_t version{0};
 		alignas(kCacheLineSizeInBytes) Index m_backBuffer{0};
+		char m_pad0[kCacheLineSizeInBytes - sizeof(Index)];
 		alignas(kCacheLineSizeInBytes) Index m_frontBuffer{2};
+		AtomicType<Index> m_middleBuffer{1};
+		uint64_t m_version{0};
+		char m_pad1[kCacheLineSizeInBytes - sizeof(Index) - sizeof(AtomicType<Index>) - sizeof(uint64_t)];
 };
 
 #endif //TRIPLE_BUFFER_INDEX_HPP
