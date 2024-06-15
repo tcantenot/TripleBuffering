@@ -4,7 +4,7 @@
 
 #define K_TRIPLE_BUFFER_INDEX_USE_RELACY 1
 
-#if defined(K_TRIPLE_BUFFER_INDEX_USE_RELACY)
+#if K_TRIPLE_BUFFER_INDEX_USE_RELACY
 	#include <relacy/relacy.hpp>
 #else
 	#include <atomic>
@@ -17,7 +17,7 @@
 // Inspired by: https://github.com/brilliantsugar/trio
 class TripleBufferIndex
 {
-	#if defined(K_TRIPLE_BUFFER_INDEX_USE_RELACY)
+	#if K_TRIPLE_BUFFER_INDEX_USE_RELACY
 	template <typename T>
 	using AtomicType = rl::atomic<T>;
 	static constexpr rl::memory_order kMemoryOrderRelaxed = rl::mo_relaxed;
@@ -40,7 +40,7 @@ class TripleBufferIndex
 
 			Index(uint64_t i = 0): index(i), bDirty(0), version(-1) { }
 
-			#if defined(K_TRIPLE_BUFFER_INDEX_USE_RELACY)
+			#if K_TRIPLE_BUFFER_INDEX_USE_RELACY
 			friend std::ostream & operator<<(std::ostream & os, Index idx)
 			{
 				os << "{ idx: " << idx.index << " | dirty: " << idx.bDirty << " }";
